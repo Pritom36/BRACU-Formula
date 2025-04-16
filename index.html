@@ -3,111 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced BRACU Admission Formulas (Bootstrap + MathJax)</title>
+    <title>Responsive BRACU Admission Formulas with Font Control</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
-    <!-- Custom CSS for Aesthetics -->
+    <!-- Custom CSS for Aesthetics & Font Control -->
     <style>
-        body {
-            background-color: #f8f9fa; /* Light grey background */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Cleaner font */
-            font-size: 16px; /* Slightly larger base font */
+        :root {
+             /* Define initial font size using CSS variable if needed,
+                or rely on browser default (~16px) and adjust via JS */
         }
-        .container {
-            margin-top: 2rem;
-            margin-bottom: 3rem; /* More bottom space */
-            max-width: 960px; /* Slightly wider container */
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+             /* Base font size will be controlled by JS on <html> */
+        }
+        .container-main {
+            margin-top: 1rem;
+            margin-bottom: 3rem;
+            max-width: 1140px; /* Allow slightly wider on large screens */
+            padding: 0 15px; /* Add padding for smaller screens */
+        }
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
         }
         .main-title {
-            color: #343a40; /* Darker grey title */
-            margin-bottom: 2.5rem;
+            color: #343a40;
+            margin-bottom: 0.5rem; /* Reduce margin when controls are present */
+            font-size: 2rem; /* Use rem for scalability */
+            flex-grow: 1; /* Allow title to take space */
+             text-align: center; /* Center title */
+        }
+         @media (min-width: 576px) {
+             .main-title {
+                text-align: left; /* Align left on larger screens */
+             }
+         }
+        .font-controls button {
+            margin-left: 0.5rem;
+            font-weight: bold;
         }
         .card {
-            border: none; /* Remove default card border */
-            border-radius: 0.5rem; /* Softer corners */
-            margin-bottom: 1.5rem; /* Space between subject cards */
+            border: none;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Subtle shadow */
         }
         .card-header {
-            font-size: 1.4rem; /* Slightly smaller header */
-            font-weight: 600; /* Semi-bold */
-            background-color: #5c9cec; /* Softer, elegant blue */
+            font-size: 1.3rem; /* Relative unit */
+            font-weight: 600;
+            background-color: #5c9cec;
             color: white;
-            border-radius: 0.5rem 0.5rem 0 0 !important; /* Match card radius */
+            border-radius: 0.5rem 0.5rem 0 0 !important;
             padding: 0.8rem 1.25rem;
         }
         .accordion-item {
-            border: 1px solid #dee2e6; /* Add subtle border to items */
-            border-radius: 0.3rem; /* Rounded corners for items */
-            margin-bottom: 0.5rem; /* Space between accordion items */
+            border: 1px solid #dee2e6;
+            border-radius: 0.3rem;
+            margin-bottom: 0.5rem;
+            background-color: #fff; /* Ensure item background is white */
         }
-        .accordion-item:first-of-type {
-             border-top-left-radius: 0.3rem;
-             border-top-right-radius: 0.3rem;
-        }
+         /* Remove margin for last item if needed */
         .accordion-item:last-of-type {
             margin-bottom: 0;
+        }
+        /* Remove borders when inside .accordion */
+        .accordion > .accordion-item {
+            border: none;
+            border-bottom: 1px solid #dee2e6; /* Keep bottom border for separation */
+            border-radius: 0;
+        }
+         .accordion > .accordion-item:first-of-type {
+            border-top-left-radius: 0.3rem;
+            border-top-right-radius: 0.3rem;
+         }
+        .accordion > .accordion-item:last-of-type {
              border-bottom-left-radius: 0.3rem;
              border-bottom-right-radius: 0.3rem;
+             border-bottom: none; /* No border on the very last item */
         }
+
         .accordion-button {
             font-weight: 600;
-            color: #495057; /* Dark grey button text */
-            background-color: #f8f9fa; /* Light background for button */
-            border-radius: 0.3rem !important; /* Ensure consistent rounding */
+            color: #495057;
+            background-color: #f8f9fa;
             padding: 0.9rem 1.25rem;
+            font-size: 1.1rem; /* Relative unit */
+            border-radius: 0 !important; /* Remove individual button radius inside accordion */
         }
-        .accordion-button:not(.collapsed) { /* Style when open */
-            color: #06478b; /* Darker blue when open */
-            background-color: #e7f1ff; /* Light blue background when open */
+        /* Style button when its section is open */
+        .accordion-button:not(.collapsed) {
+            color: #06478b;
+            background-color: #e7f1ff;
             box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .125);
         }
         .accordion-button:focus {
-            box-shadow: 0 0 0 0.25rem rgba(92, 156, 236, 0.25); /* Focus ring color */
+            box-shadow: 0 0 0 0.25rem rgba(92, 156, 236, 0.25);
+            z-index: 3; /* Ensure focus outline is visible */
         }
-        /* Remove default Bootstrap accordion icons */
         .accordion-button::after {
            background-image: none;
-           content: '+'; /* Use text plus sign */
-           font-size: 1.5rem;
+           content: '+';
+           font-size: 1.5em; /* Relative unit */
            font-weight: bold;
            margin-left: auto;
-           transform: translateY(-2px) rotate(0deg); /* Align vertically */
+           transform: translateY(-2px) rotate(0deg);
            transition: transform 0.2s ease-in-out;
         }
         .accordion-button:not(.collapsed)::after {
-           content: '−'; /* Use text minus sign */
-           transform: translateY(-2px) rotate(0deg); /* No rotation needed now */
+           content: '−';
+           transform: translateY(-2px) rotate(0deg);
         }
         .accordion-body {
             background-color: #ffffff;
-            padding: 1.25rem; /* More padding inside */
-            font-size: 1rem; /* Ensure body text is readable */
-            line-height: 1.7; /* Improve line spacing */
+            padding: 1.25rem;
+            font-size: 1rem; /* Base size for content, scales with root */
+            line-height: 1.7;
             border-top: 1px solid #dee2e6;
-            border-radius: 0 0 0.3rem 0.3rem;
         }
         /* MathJax display math styling */
         mjx-display {
             margin-top: 1em !important;
             margin-bottom: 1em !important;
+            overflow-x: auto; /* Add scroll for very long formulas */
+            padding-bottom: 5px; /* Space for scrollbar if needed */
         }
         .formula-group {
-            margin-bottom: 1.2rem; /* More space between formula groups */
+            margin-bottom: 1.2rem;
             padding-bottom: 0.8rem;
-            border-bottom: 1px dashed #e0e0e0; /* Lighter dashed line */
+            border-bottom: 1px dashed #e0e0e0;
         }
-        .formula-group:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
+        .formula-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .formula-group strong {
             display: block;
-            margin-bottom: 0.5rem; /* More space below heading */
-            color: #5c9cec; /* Use header color for consistency */
+            margin-bottom: 0.5rem;
+            color: #5c9cec;
             font-weight: 600;
+            font-size: 1.05em; /* Relative unit */
         }
     </style>
 
@@ -124,14 +162,20 @@
 </head>
 <body>
 
-<div class="container">
-    <h1 class="text-center main-title">BRAC University Admission Test - Formula Sheet</h1>
+<div class="container-main">
+    <div class="header-controls">
+        <h1 class="main-title">BRAC University Admission Test - Formula Sheet</h1>
+        <div class="font-controls mb-2 mb-sm-0">
+            <button id="decrease-font" class="btn btn-sm btn-outline-secondary" title="Decrease Font Size">A-</button>
+            <button id="increase-font" class="btn btn-sm btn-outline-secondary" title="Increase Font Size">A+</button>
+        </div>
+    </div>
 
     <!-- === Mathematics Card === -->
     <div class="card shadow-sm">
         <div class="card-header"> গণিত (Mathematics) </div>
-        <div class="card-body">
-            <div class="accordion" id="mathAccordion">
+        <div class="card-body p-0"> <!-- Remove padding to let accordion touch edges -->
+            <div class="accordion accordion-flush" id="mathAccordion">
                 <!-- Algebra -->
                 <div class="accordion-item">
                     <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMathAlgebra" aria-expanded="false"> বীজগণিত (Algebra) </button></h2>
@@ -183,12 +227,12 @@
         </div>
     </div>
 
-    <!-- === Higher Mathematics Card === -->
-    <div class="card shadow-sm">
-        <div class="card-header"> উচ্চতর গণিত (Higher Mathematics) </div>
-        <div class="card-body">
-             <div class="accordion" id="higherMathAccordion">
-                 <!-- Limits -->
+    <!-- === Higher Mathematics Card === (Structure repeats similar to Math) -->
+     <div class="card shadow-sm">
+         <div class="card-header"> উচ্চতর গণিত (Higher Mathematics) </div>
+         <div class="card-body p-0">
+            <div class="accordion accordion-flush" id="higherMathAccordion">
+                <!-- Limits -->
                  <div class="accordion-item">
                     <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHMathLimits" aria-expanded="false"> লিমিট (Limits) </button></h2>
                     <div id="collapseHMathLimits" class="accordion-collapse collapse" data-bs-parent="#higherMathAccordion"><div class="accordion-body">
@@ -247,11 +291,12 @@
          </div>
     </div>
 
-    <!-- === Physics Card === -->
+
+    <!-- === Physics Card === (Structure repeats similar to Math) -->
      <div class="card shadow-sm">
-        <div class="card-header"> পদার্থবিজ্ঞান (Physics) </div>
-        <div class="card-body">
-             <div class="accordion" id="physicsAccordion">
+         <div class="card-header"> পদার্থবিজ্ঞান (Physics) </div>
+         <div class="card-body p-0">
+             <div class="accordion accordion-flush" id="physicsAccordion">
                  <!-- Kinematics -->
                 <div class="accordion-item">
                     <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePhyKin" aria-expanded="false"> গতিবিদ্যা (Kinematics) </button></h2>
@@ -282,7 +327,6 @@
                      <div id="collapsePhyThermo" class="accordion-collapse collapse" data-bs-parent="#physicsAccordion"><div class="accordion-body">
                         <div class="formula-group"><strong>Zeroth Law:</strong> Concept of thermal equilibrium.</div>
                         <div class="formula-group"><strong>First Law:</strong> \(\Delta U = Q - W\) <br> (\(\Delta U\) = Change in internal energy, \(Q\) = Heat added TO the system, \(W\) = Work done BY the system)</div>
-                        <!-- Add specific heat, ideal gas law if needed, but keeping it brief -->
                      </div></div>
                  </div>
                   <!-- Waves -->
@@ -308,7 +352,6 @@
                     <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePhyElectrostatics" aria-expanded="false"> স্থির তড়িৎ (Electrostatics) </button></h2>
                      <div id="collapsePhyElectrostatics" class="accordion-collapse collapse" data-bs-parent="#physicsAccordion"><div class="accordion-body">
                         <div class="formula-group"><strong>Coulomb's Law:</strong> Force between charges \(q_1, q_2\) separated by \(r\): $$F = k \frac{|q_1 q_2|}{r^2}$$ where \(k = \frac{1}{4\pi\epsilon_0}\) is Coulomb's constant.</div>
-                        <!-- Electric field, potential concepts could be added but might be too much -->
                      </div></div>
                  </div>
                 <!-- Electricity (Circuits) -->
@@ -331,14 +374,49 @@
                         <div class="formula-group"><strong>Photoelectric Effect:</strong> \(KE_{max} = hf - \phi\) (\(KE_{max}\) = max kinetic energy of emitted electron, \(\phi\) = work function)</div>
                      </div></div>
                  </div>
-             </div>
-         </div>
-     </div>
+             </div> <!-- End Physics Accordion -->
+         </div> <!-- End Card Body -->
+     </div> <!-- End Physics Card -->
 
 </div> <!-- End Container -->
 
 <!-- Bootstrap Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+<!-- Font Control JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const decreaseBtn = document.getElementById('decrease-font');
+        const increaseBtn = document.getElementById('increase-font');
+        const rootElement = document.documentElement; // Target the <html> element
+
+        const step = 1; // Font size change step in pixels
+        const minSize = 12; // Minimum font size in pixels
+        const maxSize = 24; // Maximum font size in pixels
+
+        function getCurrentFontSize() {
+            const currentSizeStr = window.getComputedStyle(rootElement).fontSize;
+            return parseFloat(currentSizeStr); // Gets size in pixels
+        }
+
+        function setFontSize(size) {
+             // Apply limits
+             size = Math.max(minSize, size);
+             size = Math.min(maxSize, size);
+             rootElement.style.fontSize = size + 'px';
+        }
+
+        increaseBtn.addEventListener('click', function() {
+            let currentSize = getCurrentFontSize();
+            setFontSize(currentSize + step);
+        });
+
+        decreaseBtn.addEventListener('click', function() {
+            let currentSize = getCurrentFontSize();
+            setFontSize(currentSize - step);
+        });
+    });
+</script>
 
 <!-- MathJax script is already included in the <head> -->
 
